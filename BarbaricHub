@@ -1,447 +1,833 @@
-local DiscordLib = loadstring(game:HttpGet"https://raw.githubusercontent.com/dawid-scripts/UI-Libs/main/discord%20lib.txt")()
+-- Gui to Lua
+-- Version: 3.2
 
-local win = DiscordLib:Window("barbaric hub")
+-- Instances:
 
-local serv = win:Server("main", "")
+local ScreenGui = Instance.new("ScreenGui")
+local Frame = Instance.new("Frame")
+local ImageLabel = Instance.new("ImageLabel")
+local HCBB = Instance.new("ImageButton")
+local UICorner = Instance.new("UICorner")
+local FF2 = Instance.new("ImageButton")
+local UICorner_2 = Instance.new("UICorner")
+local Phenom = Instance.new("ImageButton")
+local UICorner_3 = Instance.new("UICorner")
+local Frame_2 = Instance.new("Frame")
+local HcbbFrame = Instance.new("Frame")
+local Aki = Instance.new("TextButton")
+local UICorner_4 = Instance.new("UICorner")
+local UIGradient = Instance.new("UIGradient")
+local speed = Instance.new("TextButton")
+local UICorner_5 = Instance.new("UICorner")
+local UIGradient_2 = Instance.new("UIGradient")
+local Shadow = Instance.new("ImageLabel")
+local FF2Frame = Instance.new("Frame")
+local Customhub = Instance.new("TextButton")
+local UICorner_6 = Instance.new("UICorner")
+local UIGradient_3 = Instance.new("UIGradient")
+local PhenomFrame = Instance.new("Frame")
+local LOOM = Instance.new("TextButton")
+local UICorner_7 = Instance.new("UICorner")
+local UIGradient_4 = Instance.new("UIGradient")
+local Phenomhub = Instance.new("TextButton")
+local UICorner_8 = Instance.new("UICorner")
+local UIGradient_5 = Instance.new("UIGradient")
+local on = false
 
-local btns = serv:Channel("funcs")
+--Properties:
 
-btns:Button("Aki Old Source", function()
-    local set = {
-        AutoAimBat = false;
-        AutoHitBat = true;
-        WindupDist = 67;
-        HitDist = 14;
-        BallEsp = true;
-        YOffset = -8;
-        OnlyHitInBox = true;
-        AimWithMouse = true;
-        showBoundsAndPrediction = true;
-    }
+ScreenGui.Parent = game:GetService("CoreGui")
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-    local function find_constant(func, sig)
-        local s = "9271YE7DGWDAHSDBSSS"
-       for i,v in ipairs(getconstants(func)) do 
-            if tostring(v):find(sig) then
-                return true
-            end
-       end
-        return false
-    end
-    
-    local theBall = nil;
-    local tweenSpeed = 0
-    
-    local Circle = Drawing.new("Circle")
-    Circle.Visible = true
-    Circle.Thickness = 2
-    Circle.Radius = 10
-    Circle.Color = Color3.new(0,255,0)
+Frame.Parent = ScreenGui
+Frame.BackgroundColor3 = Color3.fromRGB(8, 24, 29)
+Frame.LayoutOrder = 1
+Frame.Position = UDim2.new(0.215801015, 0, 0.241975307, 0)
+Frame.Size = UDim2.new(0, 719, 0, 404)
+Frame.ZIndex = 2
+local UserInputService = game:GetService("UserInputService")
+local runService = (game:GetService("RunService"));
 
-    
-    local PredictionCircle = Drawing.new("Circle")
-    PredictionCircle.Visible = true
-    PredictionCircle.Thickness = 2
-    PredictionCircle.Radius = 30
-    PredictionCircle.Color = Color3.new(255,0,0)
-    local InsidePredictionCircle = Drawing.new("Circle")
-    InsidePredictionCircle.Visible = true
-    InsidePredictionCircle.Thickness = 2
-    InsidePredictionCircle.Filled = true
-    InsidePredictionCircle.Transparency = 0.5
-    InsidePredictionCircle.Radius = 30
-    InsidePredictionCircle.Color = Color3.new(255,0,0)
+local gui = Frame
 
-    local part = _G.Part or Instance.new("Part")
-    _G.Part = part
-    part.Anchored = true
-    part.Size = Vector3.new(0.5,0.5,0.5)
-    part.BrickColor = BrickColor.new("Really red")
-    part.CanCollide = false
-    part.Transparency = set.showBoundsAndPrediction and 0.35 or 1
-    --part.Parent = workspace
+local dragging
+local dragInput
+local dragStart
+local startPos
 
-    local currentPathTable = {}
-    local predictedPos = Vector3.new()
-    local founditthing = false
+function Lerp(a, b, m)
+	return a + (b - a) * m
+end;
 
-    local lastTick = 0
+local lastMousePos
+local lastGoalPos
+local DRAG_SPEED = (8); -- // The speed of the UI darg.
+function Update(dt)
+	if not (startPos) then return end;
+	if not (dragging) and (lastGoalPos) then
+		gui.Position = UDim2.new(startPos.X.Scale, Lerp(gui.Position.X.Offset, lastGoalPos.X.Offset, dt * DRAG_SPEED), startPos.Y.Scale, Lerp(gui.Position.Y.Offset, lastGoalPos.Y.Offset, dt * DRAG_SPEED))
+		return 
+	end;
 
-    local old
-    old = hookmetamethod(game, "__namecall", function(self, ...)
-        if not checkcaller() and getnamecallmethod() == "Clone" and self and self.Parent and self.Parent.Name == "Ball" then
-            if tick() > lastTick + 2 then
-                lastTick = tick()
-                theBall = self.Parent
-            end
-        end
-        
-        return old(self, ...)
-    end)
-    
-    local camera = workspace.CurrentCamera
-    for i,v in ipairs(getgc(true)) do
-        if type(v) == 'function' and islclosure(v) and not (syn and is_synapse_function or Krnl and iskrnlclosure)(v) then
-            if tostring(getfenv(v).script) == "GoFirst" then
-                for a,c in pairs(getupvalues(v)) do
-                    if type(c) == 'function' and islclosure(c) and find_constant(c, "NextNumber") and (find_constant(c, "abs") or find_constant(c, "sin")) then
-                       setupvalue(v, a, function() return Vector3.new() end)
-                    end
-                end
-            end
-        elseif type(v) == 'table' and rawget(v, "GetPos") then
-            local old = v.SetPitchtab
-            v["SetPitchtab"] = function(self, thingy)
-                delay(0.1, function()
-                    if not workspace.Ignore:FindFirstChild("BGUI") then
-                        return
-                    end
-                    local borderBox = workspace.Ignore.BGUI.BlackBoarder
-                    local closestMag = math.huge
-                    local newPos = Vector3.new()
-                    for i = 0, 1, 0.01 do
-                        local pos = v:GetPos(i, currentPathTable, false, nil, thingy)
-                        if pos and pos.p ~= Vector3.new(0,0,0) then
-                            local mag = (pos.p - borderBox.Position).Magnitude
-                            if mag < closestMag then
-                                closestMag = mag
-                                newPos = pos.p
-                            end
-                        end
-                    end
-                    if newPos ~= Vector3.new() then
-                        PredictionCircle.Visible = set.showBoundsAndPrediction
-                        InsidePredictionCircle.Visible = set.showBoundsAndPrediction
-                        local pos, isInScreen = workspace.CurrentCamera:WorldToViewportPoint(newPos)
-                        PredictionCircle.Position = Vector2.new(pos.x, pos.y)
-                        InsidePredictionCircle.Position = Vector2.new(pos.x, pos.y)
+	local delta = (lastMousePos - UserInputService:GetMouseLocation())
+	local xGoal = (startPos.X.Offset - delta.X);
+	local yGoal = (startPos.Y.Offset - delta.Y);
+	lastGoalPos = UDim2.new(startPos.X.Scale, xGoal, startPos.Y.Scale, yGoal)
+	gui.Position = UDim2.new(startPos.X.Scale, Lerp(gui.Position.X.Offset, xGoal, dt * DRAG_SPEED), startPos.Y.Scale, Lerp(gui.Position.Y.Offset, yGoal, dt * DRAG_SPEED))
+end;
 
-                        --part.Position = newPos
-                        predictedPos = newPos
-                    else
-                        PredictionCircle.Visible = false
-                        InsidePredictionCircle.Visible = false
-                    end
-                end)
-                return old(self, thingy) 
-            end
-        end
-    end
+gui.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStart = input.Position
+		startPos = gui.Position
+		lastMousePos = UserInputService:GetMouseLocation()
 
-    game.ReplicatedStorage.RESC.SEVREPBALLTHROW.OnClientEvent:connect(function(_, p219)
-        currentPathTable = p219
-    end)
-    
-    local mouse = game:GetService("Players").LocalPlayer:GetMouse()
-    local smoothness = 1
-    local toChange = nil
-    local hasWindedUp = false
-    local hasSwang = false
-    local aiming = false
-
-    local tween
-    local completedTween
-
-    function actuallyAim()
-        if theBall ~= nil and theBall.Parent ~= nil then 
-            local toAimAt = theBall.Position
-            if predictedPos and predictedPos ~= Vector3.new() then
-                toAimAt = predictedPos
-            end
-            local ballPos = camera:WorldToScreenPoint(toAimAt + Vector3.new(0,-theBall.Size.Y/2,0))
-            local mousePos = camera:WorldToScreenPoint(mouse.Hit.p)
-            local aimAt = Vector2.new()
-            local normalPos = Vector2.new(ballPos.X, ballPos.Y)
-            local diff
-            if toChange then
-                local cursorV2 = camera:WorldToScreenPoint(toChange.Position + Vector3.new(0, toChange.Size.Y/2, 0))
-                local myMousePos = Vector2.new(mousePos.X, mousePos.Y)
-                local cursorPos = Vector2.new(cursorV2.X, cursorV2.Y)
-                
-                local difference = (myMousePos - cursorPos)
-                normalPos = normalPos + difference + Vector2.new(0, set.YOffset)
-                diff = difference
-            end
-            aimAt = normalPos
-
-            local shouldAim = false
-            if set.AutoHitBat then
-                local toMag = workspace.Plates.SwingTarget.Position
-                if predictedPos and predictedPos ~= Vector3.new() then
-                    toMag = predictedPos
-                end
-                local ballMag = (theBall.Position - toMag).Magnitude
-                if ballMag <= set.WindupDist and not hasWindedUp then
-                    hasWindedUp = true
-                    mouse1click()  
-                end
-                if hasWindedUp and not hasSwang then
-                    local borderBox = workspace.Ignore.BGUI.BlackBoarder
-                    local ballPos = camera:WorldToScreenPoint(toAimAt)
-                    local BorderPositions = {
-                        TopLeft = camera:WorldToScreenPoint(borderBox.Position + Vector3.new(0,borderBox.Size.Y/2 + 0.2 + 0.25,borderBox.Size.X/2 + 0.2+ 0.25)),
-                        TopRight = camera:WorldToScreenPoint(borderBox.Position + Vector3.new(0,borderBox.Size.Y/2 + 0.2+ 0.25,-borderBox.Size.X/2 - 0.2 - 0.25)),
-                        BottomRight = camera:WorldToScreenPoint(borderBox.Position + Vector3.new(0,-borderBox.Size.Y/2 - 0.2 - 0.25,-borderBox.Size.X/2 - 0.2 - 0.25)),
-                        BottomLeft = camera:WorldToScreenPoint(borderBox.Position + Vector3.new(0,-borderBox.Size.Y/2 - 0.2 - 0.25,borderBox.Size.X/2 + 0.2 + 0.25)),
-                    }
-                    
-                    local parts = _G.parts or {
-                        TopLeft = Instance.new("Part"),
-                        TopRight = Instance.new("Part"),
-                        BottomLeft = Instance.new("Part"),
-                        BottomRight = Instance.new("Part")
-                    }
-                    _G.parts = parts
-                    
-                    for i,v in pairs(parts) do
-                        v.Anchored = true
-                        v.CanCollide = false
-                        v.BrickColor = BrickColor.new("Cyan")
-                        v.Size = Vector3.new(0.25,0.25,0.25)
-                        v.Transparency = set.showBoundsAndPrediction and 0.1 or 1
-                        --v.Parent = workspace
-                    end
-
-                    if set.showBoundsAndPrediction then
-                        _G.Part.Transparency = 0.35
-                    else
-                        _G.Part.Transparency = 1
-                    end
-                    
-                    parts.TopLeft.Position = borderBox.Position + Vector3.new(0,borderBox.Size.Y/2 + 0.2 + 0.25,borderBox.Size.X/2 + 0.2 + 0.25)
-                    parts.TopRight.Position = borderBox.Position + Vector3.new(0,borderBox.Size.Y/2 + 0.2 + 0.25,-borderBox.Size.X/2 - 0.2 - 0.25)
-                    parts.BottomRight.Position = borderBox.Position + Vector3.new(0,-borderBox.Size.Y/2 - 0.2,-borderBox.Size.X/2 - 0.2 - 0.25)
-                    parts.BottomLeft.Position = borderBox.Position + Vector3.new(0,-borderBox.Size.Y/2 - 0.2,borderBox.Size.X/2 + 0.2 + 0.25)
-                    
-                    --TopLeft
-                    
-                    
-                    if not set.OnlyHitInBox or (ballPos.X <= BorderPositions.TopRight.X and ballPos.X >= BorderPositions.TopLeft.X and ballPos.Y <= BorderPositions.BottomRight.Y and ballPos.Y >= BorderPositions.TopRight.Y) then
-                        shouldAim = true
-                        if ballMag <= set.HitDist then
-                            mouse1click()
-                        end
-                    end
-                    
-                    
-                    
-                    hasSwang = true
-                    
-                    delay(2, function()
-                        hasSwang = false
-                        hasWindedUp = false
-                        theBall = nil
-                    end)
-                end
-            end
-            
-            if set.AimWithMouse and not aiming and theBall then
-                aiming = true
-                local CFValue = Instance.new("CFrameValue")
-                CFValue.Value = CFrame.new(mousePos.X, mousePos.Y, 0)
-                local con = true
-                if tweenSpeed ~= 0 then
-                    tween = game:GetService("TweenService"):Create(CFValue, TweenInfo.new(tweenSpeed, Enum.EasingStyle.Quad), {Value = CFrame.new(aimAt.X, aimAt.Y, 0)})
-                    tween:Play()
-                    
-                    completedTween = tween.Completed:Connect(function()
-                        
-                        con = false
-                        delay(2, function()
-                            aiming = false
-                        end)
-                    end)
-                    theBall.Changed:Connect(function()
-                        if theBall and theBall.Parent then
-                            tween:Pause()
-
-                            local toAimAt = theBall.Position
-                            if predictedPos and predictedPos ~= Vector3.new() then
-                                toAimAt = predictedPos
-                            end
-                            local ballPos = camera:WorldToScreenPoint(toAimAt + Vector3.new(0,-theBall.Size.Y/2,0))
-                            local mousePos = camera:WorldToScreenPoint(mouse.Hit.p)
-                            local aimAt = Vector2.new()
-                            local normalPos = Vector2.new(ballPos.X, ballPos.Y)
-                            local diff
-                            if toChange then
-                                local cursorV2 = camera:WorldToScreenPoint(toChange.Position + Vector3.new(0, toChange.Size.Y/2, 0))
-                                local myMousePos = Vector2.new(mousePos.X, mousePos.Y)
-                                local cursorPos = Vector2.new(cursorV2.X, cursorV2.Y)
-                                
-                                local difference = (myMousePos - cursorPos)
-                                normalPos = normalPos + difference + Vector2.new(0, set.YOffset)
-                                diff = difference
-                            end
-                            aimAt = normalPos
-
-                            tween = game:GetService("TweenService"):Create(CFValue, TweenInfo.new(tweenSpeed, Enum.EasingStyle.Quad), {Value = CFrame.new(aimAt.X, aimAt.Y, 0)})
-                            tween:Play()
-                            
-                            completedTween:Disconnect()
-                            completedTween = tween.Completed:Connect(function()
-                                con = false
-                                delay(2, function()
-                                    aiming = false
-                                end)
-                            end)
-                        end
-                    end)
-                    spawn(function()
-                        while con do
-                            task.wait()
-                            mousemoveabs(CFValue.Value.X, CFValue.Value.Y)
-                        end
-                    end)
-                else
-                    aiming = false
-                    mousemoveabs(aimAt.X, aimAt.Y)
-                    mousemoverel(1,1)
-                end
-            end
-        end
-    end
-    
-    local specialTable = {}
-    for i,v in ipairs(getgc(true)) do
-        if type(v) == 'table' and rawget(v, "CENT_VECTOR2_1") then
-            specialTable = v
-        end
-    end
-    
-    local Mouse, Backup = game.Players.LocalPlayer:GetMouse();
-    Backup = hookmetamethod(Mouse, "__index", newcclosure(function(self, idx)
-       if not checkcaller() and idx == "X" and theBall then
-            local ballPos = camera:WorldToScreenPoint(theBall.Position)
-            local offset = rawget(specialTable, "CENT_VECTOR2_1")
-            
-            if offset and set.AutoAimBat then
-                return ballPos.X - offset.X 
-            end
-       end;
-       if not checkcaller() and idx == "Y" and theBall then
-            local ballPos = camera:WorldToScreenPoint(theBall.Position)
-            local offset = rawget(specialTable, "CENT_VECTOR2_1")
-            if offset and set.AutoAimBat then
-                return ballPos.Y - offset.Y
-            end
-       end;
-       
-       return Backup(self, idx);
-    end));
-
-    local function setToChange(self)
-        if self.ClassName == "Part" and self.Name ~= "Shad" and self.Name ~= "Self" and self.Name ~= "HitTracker" then
-            self:GetPropertyChangedSignal("CFrame"):Connect(function()
-                toChange = self
-            end)
-        end
-    end
-    for i,v in ipairs(workspace.Ignore:GetChildren()) do
-        setToChange(v)
-    end
-    workspace.Ignore.ChildAdded:Connect(setToChange)
-    
-    game:GetService("RunService").Heartbeat:connect(function()
-        if theBall == nil or theBall.Parent == nil then 
-            Circle.Visible = false
-        else
-            actuallyAim()
-            Circle.Visible = set.BallEsp
-            local pos, isInScreen = workspace.CurrentCamera:WorldToViewportPoint(theBall.Position)
-            Circle.Position = Vector2.new(pos.x, pos.y)
-        end
-    end)
-DiscordLib:Notification("Notification", "Launched Aki Source", "Alright.")
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
 end)
 
-btns:Button("FF2 Hub", function()
-    getgenv().Variables = {}
- 
-    Variables.Players = game:GetService("Players")
-    Variables.ReplicatedStorage = game:GetService("ReplicatedStorage")
-    Variables.UserInputService = game:GetService("UserInputService")
-    Variables.Client = Variables.Players.LocalPlayer
-    Variables.Character = Variables.Client.Character or Variables.Client.CharacterAdded:Wait()
-     
-    Variables.Client.CharacterAdded:Connect(function(Character)
-        Variables.Character = Character 
-    end)
-     
-    Variables.Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/yoo123fd/f/master/ui.lua"))()
-    Variables.Window = Variables.Library:AddWindow({
-        title = {
-            "nerfed's ff2 hub",
-            "use an alt pls"
-        },
-        default = true,
-        theme = {
-            Accent = Color3.fromRGB(255, 0, 255),
-            TopbarColor = Color3.fromRGB(10, 10, 10),
-            SidebarColor = Color3.fromRGB(10, 0, 30),
-            BackgroundColor = Color3.fromRGB(10, 10, 10),
-            SectionColor = Color3.fromRGB(0, 0, 10),
-            TextColor = Color3.fromRGB(300, 15, 300),
-            Objects = {},
-        }
-    })
-    Variables.Physics = Variables.Window:AddTab("enjoy the script homies")
-    Variables.CatchingTab = Variables.Window:AddTab("Catching")
-    Variables.Physics = Variables.Window:AddTab("Physics")
-    Variables.Kicking = Variables.Window:AddTab("Kicking")
-    -- // Bootup
-     
-    Variables.Mags = loadstring(game:HttpGet("https://raw.githubusercontent.com/yoo123fd/f/master/Modules/Catching/Mags.lua"))()
-    Variables.Grapher = loadstring(game:HttpGet("https://raw.githubusercontent.com/yoo123fd/f/master/Modules/Catching/Grapher.lua"))()
-    Variables.Aimbot = loadstring(game:HttpGet("https://raw.githubusercontent.com/yoo123fd/f/master/Modules/Kicking/Aimbot.lua"))()
-    Variables.Boost = loadstring(game:HttpGet("https://raw.githubusercontent.com/yoo123fd/f/master/Modules/Physics/Boost.lua"))()
-    Variables.DynamicJump = loadstring(game:HttpGet("https://raw.githubusercontent.com/yoo123fd/f/master/Modules/Physics/DynamicJump.lua"))()
-    Variables.Tracer = loadstring(game:HttpGet("https://raw.githubusercontent.com/yoo123fd/f/master/Modules/Catching/Tracer.lua"))()
-DiscordLib:Notification("Notification", "Launched FF2 Hub", "Alright.")
+gui.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+		dragInput = input
+	end
 end)
 
-btns:Button("Phenom Hub", function()
-        hookfunction(game:GetService("Players").LocalPlayer.IsInGroup, function()
-            return true
-        end)
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Loompic/Phenom-Aimbot/main/Bot"))()
+runService.Heartbeat:Connect(Update)
 
-local library = loadstring(game:HttpGet(('https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/wall%20v3')))() ---
+ImageLabel.Parent = Frame
+ImageLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+ImageLabel.BorderSizePixel = 0
+ImageLabel.LayoutOrder = 3
+ImageLabel.Position = UDim2.new(-0.000431575434, 0, 0, 0)
+ImageLabel.Size = UDim2.new(0, 95, 0, 96)
+ImageLabel.Image = "rbxassetid://13012718591"
 
-local w = library:CreateWindow('barbarics hub')
-
-local b = w:CreateFolder("Main")
-
-b:Button("Aimbot",function()
-    hookfunction(game:GetService("Players").LocalPlayer.IsInGroup, function()
-        return true
-    end)
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Loompic/Phenom-Aimbot/main/Bot"))()
+HCBB.Name = "HCBB"
+HCBB.Parent = Frame
+HCBB.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+HCBB.BackgroundTransparency = 1.000
+HCBB.Position = UDim2.new(0.032872051, 0, 0.254950494, 0)
+HCBB.Size = UDim2.new(0, 46, 0, 46)
+HCBB.ZIndex = 5
+HCBB.Image = "rbxassetid://13012810536"
+HCBB.MouseButton1Click:Connect(function()
+	if on == false then
+		on = true
+		HcbbFrame.Visible = true
+	else
+		on = false
+		HcbbFrame.Visible = false
+	end
 end)
 
--- Ball Mag
+UICorner.CornerRadius = UDim.new(0, 12)
+UICorner.Parent = HCBB
 
-b:Toggle("Ball Mag",function(bool)
-    getgenv().ballMag = bool
-    local RS = game:GetService("RunService")
-    RS.RenderStepped:Connect(function()
-        if ballMag == true then
-          game.Workspace.Map.Basketball.Handle.CFrame = Game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-        end
-    end)
+FF2.Name = "FF2"
+FF2.Parent = Frame
+FF2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+FF2.BackgroundTransparency = 1.000
+FF2.Position = UDim2.new(0.0328720808, 0, 0.460396022, 0)
+FF2.Size = UDim2.new(0, 46, 0, 46)
+FF2.ZIndex = 5
+FF2.Image = "rbxassetid://13012831076"
+FF2.MouseButton1Click:Connect(function()
+	if on == false then
+		on = true
+		FF2Frame.Visible = true
+	else
+		on = false
+		FF2Frame.Visible = false
+	end
 end)
 
--- Long arm
+UICorner_2.CornerRadius = UDim.new(0, 12)
+UICorner_2.Parent = FF2
 
-b:Toggle("Long Arm",function(bool)
-  getgenv().longArm = bool
-    if longArm == true then
-      game:GetService("Players").LocalPlayer.Character['Left Arm'].Size = Vector3.new(15, 1, 1)
-      game:GetService("Players").LocalPlayer.Character['Right Arm'].Size = Vector3.new(15, 1, 1)
-    else
-      game:GetService("Players").LocalPlayer.Character['Left Arm'].Size = Vector3.new(1, 2, 1)
-      game:GetService("Players").LocalPlayer.Character['Right Arm'].Size = Vector3.new(1, 2, 1)
-    end
+Phenom.Name = "Phenom"
+Phenom.Parent = Frame
+Phenom.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Phenom.BackgroundTransparency = 1.000
+Phenom.Position = UDim2.new(0.0328720808, 0, 0.663366318, 0)
+Phenom.Size = UDim2.new(0, 46, 0, 46)
+Phenom.ZIndex = 5
+Phenom.Image = "rbxassetid://13012847560"
+Phenom.MouseButton1Click:Connect(function()
+	if on == false then
+		on = true
+		PhenomFrame.Visible = true
+	else
+		on = false
+		PhenomFrame.Visible = false
+	end
 end)
-DiscordLib:Notification("Notification", "Launched Phenom Hub", "Alright.")
+
+UICorner_3.CornerRadius = UDim.new(0, 12)
+UICorner_3.Parent = Phenom
+
+Frame_2.Parent = Frame
+Frame_2.BackgroundColor3 = Color3.fromRGB(13, 35, 41)
+Frame_2.BorderColor3 = Color3.fromRGB(13, 35, 41)
+Frame_2.LayoutOrder = 3
+Frame_2.Position = UDim2.new(0, 0, 0.237623766, 0)
+Frame_2.Size = UDim2.new(0, 94, 0, 308)
+
+HcbbFrame.Name = "HcbbFrame"
+HcbbFrame.Parent = Frame
+HcbbFrame.BackgroundColor3 = Color3.fromRGB(13, 35, 41)
+HcbbFrame.BorderColor3 = Color3.fromRGB(13, 35, 41)
+HcbbFrame.LayoutOrder = 3
+HcbbFrame.Position = UDim2.new(0.130737141, 0, 0.225247532, 0)
+HcbbFrame.Size = UDim2.new(0, 625, 0, 69)
+HcbbFrame.Visible = false
+HcbbFrame.ZIndex = 4
+
+Aki.Name = "Aki"
+Aki.Parent = HcbbFrame
+Aki.BackgroundColor3 = Color3.fromRGB(172, 172, 172)
+Aki.Position = UDim2.new(0.0368000008, 0, 0.115942031, 0)
+Aki.Size = UDim2.new(0, 269, 0, 50)
+Aki.ZIndex = 6
+Aki.Font = Enum.Font.Unknown
+Aki.Text = "AKI SOURCE"
+Aki.TextColor3 = Color3.fromRGB(255, 255, 255)
+Aki.TextSize = 14.000
+Aki.MouseButton1Click:Connect(function()
+	local set = {
+		AutoAimBat = false;
+		AutoHitBat = true;
+		WindupDist = 67;
+		HitDist = 14;
+		BallEsp = true;
+		YOffset = -10;
+		OnlyHitInBox = true;
+		AimWithMouse = true;
+		showBoundsAndPrediction = true;
+	}
+
+	local function find_constant(func, sig)
+		local s = "9271YE7DGWDAHSDBSSS"
+		for i,v in ipairs(getconstants(func)) do 
+			if tostring(v):find(sig) then
+				return true
+			end
+		end
+		return false
+	end
+
+	local theBall = nil;
+	local tweenSpeed = 0
+
+	local Circle = Drawing.new("Circle")
+	Circle.Visible = true
+	Circle.Thickness = 2
+	Circle.Radius = 10
+	Circle.Color = Color3.new(0,255,0)
+
+
+	local PredictionCircle = Drawing.new("Circle")
+	PredictionCircle.Visible = true
+	PredictionCircle.Thickness = 2
+	PredictionCircle.Radius = 30
+	PredictionCircle.Color = Color3.new(255,0,0)
+	local InsidePredictionCircle = Drawing.new("Circle")
+	InsidePredictionCircle.Visible = true
+	InsidePredictionCircle.Thickness = 2
+	InsidePredictionCircle.Filled = true
+	InsidePredictionCircle.Transparency = 0.5
+	InsidePredictionCircle.Radius = 30
+	InsidePredictionCircle.Color = Color3.new(255,0,0)
+
+	local part = _G.Part or Instance.new("Part")
+	_G.Part = part
+	part.Anchored = true
+	part.Size = Vector3.new(0.5,0.5,0.5)
+	part.BrickColor = BrickColor.new("Really red")
+	part.CanCollide = false
+	part.Transparency = set.showBoundsAndPrediction and 0.35 or 1
+	--part.Parent = workspace
+
+	local currentPathTable = {}
+	local predictedPos = Vector3.new()
+	local founditthing = false
+
+	local lastTick = 0
+
+	local old
+	old = hookmetamethod(game, "__namecall", function(self, ...)
+		if not checkcaller() and getnamecallmethod() == "Clone" and self and self.Parent and self.Parent.Name == "Ball" then
+			if tick() > lastTick + 2 then
+				lastTick = tick()
+				theBall = self.Parent
+			end
+		end
+
+		return old(self, ...)
+	end)
+
+	local camera = workspace.CurrentCamera
+	for i,v in ipairs(getgc(true)) do
+		if type(v) == 'function' and islclosure(v) and not (syn and is_synapse_function or Krnl and iskrnlclosure)(v) then
+			if tostring(getfenv(v).script) == "GoFirst" then
+				for a,c in pairs(getupvalues(v)) do
+					if type(c) == 'function' and islclosure(c) and find_constant(c, "NextNumber") and (find_constant(c, "abs") or find_constant(c, "sin")) then
+						setupvalue(v, a, function() return Vector3.new() end)
+					end
+				end
+			end
+		elseif type(v) == 'table' and rawget(v, "GetPos") then
+			local old = v.SetPitchtab
+			v["SetPitchtab"] = function(self, thingy)
+				delay(0.1, function()
+					if not workspace.Ignore:FindFirstChild("BGUI") then
+						return
+					end
+					local borderBox = workspace.Ignore.BGUI.BlackBoarder
+					local closestMag = math.huge
+					local newPos = Vector3.new()
+					for i = 0, 1, 0.01 do
+						local pos = v:GetPos(i, currentPathTable, false, nil, thingy)
+						if pos and pos.p ~= Vector3.new(0,0,0) then
+							local mag = (pos.p - borderBox.Position).Magnitude
+							if mag < closestMag then
+								closestMag = mag
+								newPos = pos.p
+							end
+						end
+					end
+					if newPos ~= Vector3.new() then
+						PredictionCircle.Visible = set.showBoundsAndPrediction
+						InsidePredictionCircle.Visible = set.showBoundsAndPrediction
+						local pos, isInScreen = workspace.CurrentCamera:WorldToViewportPoint(newPos)
+						PredictionCircle.Position = Vector2.new(pos.x, pos.y)
+						InsidePredictionCircle.Position = Vector2.new(pos.x, pos.y)
+
+						--part.Position = newPos
+						predictedPos = newPos
+					else
+						PredictionCircle.Visible = false
+						InsidePredictionCircle.Visible = false
+					end
+				end)
+				return old(self, thingy) 
+			end
+		end
+	end
+
+	game.ReplicatedStorage.RESC.SEVREPBALLTHROW.OnClientEvent:connect(function(_, p219)
+		currentPathTable = p219
+	end)
+
+	local mouse = game:GetService("Players").LocalPlayer:GetMouse()
+	local smoothness = 1
+	local toChange = nil
+	local hasWindedUp = false
+	local hasSwang = false
+	local aiming = false
+
+	local tween
+	local completedTween
+
+	function actuallyAim()
+		if theBall ~= nil and theBall.Parent ~= nil then 
+			local toAimAt = theBall.Position
+			if predictedPos and predictedPos ~= Vector3.new() then
+				toAimAt = predictedPos
+			end
+			local ballPos = camera:WorldToScreenPoint(toAimAt + Vector3.new(0,-theBall.Size.Y/2,0))
+			local mousePos = camera:WorldToScreenPoint(mouse.Hit.p)
+			local aimAt = Vector2.new()
+			local normalPos = Vector2.new(ballPos.X, ballPos.Y)
+			local diff
+			if toChange then
+				local cursorV2 = camera:WorldToScreenPoint(toChange.Position + Vector3.new(0, toChange.Size.Y/2, 0))
+				local myMousePos = Vector2.new(mousePos.X, mousePos.Y)
+				local cursorPos = Vector2.new(cursorV2.X, cursorV2.Y)
+
+				local difference = (myMousePos - cursorPos)
+				normalPos = normalPos + difference + Vector2.new(0, set.YOffset)
+				diff = difference
+			end
+			aimAt = normalPos
+
+			local shouldAim = false
+			if set.AutoHitBat then
+				local toMag = workspace.Plates.SwingTarget.Position
+				if predictedPos and predictedPos ~= Vector3.new() then
+					toMag = predictedPos
+				end
+				local ballMag = (theBall.Position - toMag).Magnitude
+				if ballMag <= set.WindupDist and not hasWindedUp then
+					hasWindedUp = true
+					mouse1click()  
+				end
+				if hasWindedUp and not hasSwang then
+					local borderBox = workspace.Ignore.BGUI.BlackBoarder
+					local ballPos = camera:WorldToScreenPoint(toAimAt)
+					local BorderPositions = {
+						TopLeft = camera:WorldToScreenPoint(borderBox.Position + Vector3.new(0,borderBox.Size.Y/2 + 0.2 + 0.25,borderBox.Size.X/2 + 0.2+ 0.25)),
+						TopRight = camera:WorldToScreenPoint(borderBox.Position + Vector3.new(0,borderBox.Size.Y/2 + 0.2+ 0.25,-borderBox.Size.X/2 - 0.2 - 0.25)),
+						BottomRight = camera:WorldToScreenPoint(borderBox.Position + Vector3.new(0,-borderBox.Size.Y/2 - 0.2 - 0.25,-borderBox.Size.X/2 - 0.2 - 0.25)),
+						BottomLeft = camera:WorldToScreenPoint(borderBox.Position + Vector3.new(0,-borderBox.Size.Y/2 - 0.2 - 0.25,borderBox.Size.X/2 + 0.2 + 0.25)),
+					}
+
+					local parts = _G.parts or {
+						TopLeft = Instance.new("Part"),
+						TopRight = Instance.new("Part"),
+						BottomLeft = Instance.new("Part"),
+						BottomRight = Instance.new("Part")
+					}
+					_G.parts = parts
+
+					for i,v in pairs(parts) do
+						v.Anchored = true
+						v.CanCollide = false
+						v.BrickColor = BrickColor.new("Cyan")
+						v.Size = Vector3.new(0.25,0.25,0.25)
+						v.Transparency = set.showBoundsAndPrediction and 0.1 or 1
+						--v.Parent = workspace
+					end
+
+					if set.showBoundsAndPrediction then
+						_G.Part.Transparency = 0.35
+					else
+						_G.Part.Transparency = 1
+					end
+
+					parts.TopLeft.Position = borderBox.Position + Vector3.new(0,borderBox.Size.Y/2 + 0.2 + 0.25,borderBox.Size.X/2 + 0.2 + 0.25)
+					parts.TopRight.Position = borderBox.Position + Vector3.new(0,borderBox.Size.Y/2 + 0.2 + 0.25,-borderBox.Size.X/2 - 0.2 - 0.25)
+					parts.BottomRight.Position = borderBox.Position + Vector3.new(0,-borderBox.Size.Y/2 - 0.2,-borderBox.Size.X/2 - 0.2 - 0.25)
+					parts.BottomLeft.Position = borderBox.Position + Vector3.new(0,-borderBox.Size.Y/2 - 0.2,borderBox.Size.X/2 + 0.2 + 0.25)
+
+					--TopLeft
+
+
+					if not set.OnlyHitInBox or (ballPos.X <= BorderPositions.TopRight.X and ballPos.X >= BorderPositions.TopLeft.X and ballPos.Y <= BorderPositions.BottomRight.Y and ballPos.Y >= BorderPositions.TopRight.Y) then
+						shouldAim = true
+						if ballMag <= set.HitDist then
+							mouse1click()
+						end
+					end
+
+
+
+					hasSwang = true
+
+					delay(2, function()
+						hasSwang = false
+						hasWindedUp = false
+						theBall = nil
+					end)
+				end
+			end
+
+			if set.AimWithMouse and not aiming and theBall then
+				aiming = true
+				local CFValue = Instance.new("CFrameValue")
+				CFValue.Value = CFrame.new(mousePos.X, mousePos.Y, 0)
+				local con = true
+				if tweenSpeed ~= 0 then
+					tween = game:GetService("TweenService"):Create(CFValue, TweenInfo.new(tweenSpeed, Enum.EasingStyle.Quad), {Value = CFrame.new(aimAt.X, aimAt.Y, 0)})
+					tween:Play()
+
+					completedTween = tween.Completed:Connect(function()
+
+						con = false
+						delay(2, function()
+							aiming = false
+						end)
+					end)
+					theBall.Changed:Connect(function()
+						if theBall and theBall.Parent then
+							tween:Pause()
+
+							local toAimAt = theBall.Position
+							if predictedPos and predictedPos ~= Vector3.new() then
+								toAimAt = predictedPos
+							end
+							local ballPos = camera:WorldToScreenPoint(toAimAt + Vector3.new(0,-theBall.Size.Y/2,0))
+							local mousePos = camera:WorldToScreenPoint(mouse.Hit.p)
+							local aimAt = Vector2.new()
+							local normalPos = Vector2.new(ballPos.X, ballPos.Y)
+							local diff
+							if toChange then
+								local cursorV2 = camera:WorldToScreenPoint(toChange.Position + Vector3.new(0, toChange.Size.Y/2, 0))
+								local myMousePos = Vector2.new(mousePos.X, mousePos.Y)
+								local cursorPos = Vector2.new(cursorV2.X, cursorV2.Y)
+
+								local difference = (myMousePos - cursorPos)
+								normalPos = normalPos + difference + Vector2.new(0, set.YOffset)
+								diff = difference
+							end
+							aimAt = normalPos
+
+							tween = game:GetService("TweenService"):Create(CFValue, TweenInfo.new(tweenSpeed, Enum.EasingStyle.Quad), {Value = CFrame.new(aimAt.X, aimAt.Y, 0)})
+							tween:Play()
+
+							completedTween:Disconnect()
+							completedTween = tween.Completed:Connect(function()
+								con = false
+								delay(2, function()
+									aiming = false
+								end)
+							end)
+						end
+					end)
+					spawn(function()
+						while con do
+							task.wait()
+							mousemoveabs(CFValue.Value.X, CFValue.Value.Y)
+						end
+					end)
+				else
+					aiming = false
+					mousemoveabs(aimAt.X, aimAt.Y)
+					mousemoverel(1,1)
+				end
+			end
+		end
+	end
+
+	local specialTable = {}
+	for i,v in ipairs(getgc(true)) do
+		if type(v) == 'table' and rawget(v, "CENT_VECTOR2_1") then
+			specialTable = v
+		end
+	end
+
+	local Mouse, Backup = game.Players.LocalPlayer:GetMouse();
+	Backup = hookmetamethod(Mouse, "__index", newcclosure(function(self, idx)
+		if not checkcaller() and idx == "X" and theBall then
+			local ballPos = camera:WorldToScreenPoint(theBall.Position)
+			local offset = rawget(specialTable, "CENT_VECTOR2_1")
+
+			if offset and set.AutoAimBat then
+				return ballPos.X - offset.X 
+			end
+		end;
+		if not checkcaller() and idx == "Y" and theBall then
+			local ballPos = camera:WorldToScreenPoint(theBall.Position)
+			local offset = rawget(specialTable, "CENT_VECTOR2_1")
+			if offset and set.AutoAimBat then
+				return ballPos.Y - offset.Y
+			end
+		end;
+
+		return Backup(self, idx);
+	end));
+
+	local function setToChange(self)
+		if self.ClassName == "Part" and self.Name ~= "Shad" and self.Name ~= "Self" and self.Name ~= "HitTracker" then
+			self:GetPropertyChangedSignal("CFrame"):Connect(function()
+				toChange = self
+			end)
+		end
+	end
+	for i,v in ipairs(workspace.Ignore:GetChildren()) do
+		setToChange(v)
+	end
+	workspace.Ignore.ChildAdded:Connect(setToChange)
+
+	game:GetService("RunService").Heartbeat:connect(function()
+		if theBall == nil or theBall.Parent == nil then 
+			Circle.Visible = false
+		else
+			actuallyAim()
+			Circle.Visible = set.BallEsp
+			local pos, isInScreen = workspace.CurrentCamera:WorldToViewportPoint(theBall.Position)
+			Circle.Position = Vector2.new(pos.x, pos.y)
+		end
+	end)
+end)
+
+UICorner_4.CornerRadius = UDim.new(0, 12)
+UICorner_4.Parent = Aki
+
+UIGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(18, 219, 171)), ColorSequenceKeypoint.new(0.49, Color3.fromRGB(69, 218, 111)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(158, 216, 89))}
+UIGradient.Parent = Aki
+
+speed.Name = "speed"
+speed.Parent = HcbbFrame
+speed.BackgroundColor3 = Color3.fromRGB(172, 172, 172)
+speed.Position = UDim2.new(0.532800019, 0, 0.130434781, 0)
+speed.Size = UDim2.new(0, 269, 0, 50)
+speed.ZIndex = 6
+speed.Font = Enum.Font.Unknown
+speed.Text = "SPEED (USE ALT)"
+speed.TextColor3 = Color3.fromRGB(255, 255, 255)
+speed.TextSize = 14.000
+speed.MouseButton1Click:Connect(function()
+	local s_rs = game:GetService("RunService")
+	local l_plr = game:GetService("Players").LocalPlayer
+
+
+
+	local l_humrp = l_plr.Character and l_plr.Character:FindFirstChild("HumanoidRootPart")
+	local l_hum = l_plr.Character and l_plr.Character:FindFirstChild("Humanoid")
+
+	local resp_con = l_plr.CharacterAdded:Connect(function(c) 
+		l_humrp = c:WaitForChild("HumanoidRootPart",3)
+		l_hum = c:WaitForChild("Humanoid",3)
+	end)
+
+	local function dnec(signal) 
+		local s = {}
+		for _, con in ipairs(getconnections(signal)) do 
+			local func = con.Function
+			if (func and islclosure(func)) then
+				if (not is_synapse_function(func)) then 
+					s[#s+1] = con
+					con:Disable() 
+				end
+			end
+		end
+		return s
+	end
+
+
+	local speed_amnt = 5
+
+	local ui = loadstring(game:HttpGet('https://raw.githubusercontent.com/topitbopit/rblx/main/ui-stuff/jeff_2.lua'))()
+	ui:SetColors('streamline')
+
+
+
+	local w = ui:NewWindow('Universal Speed',250,200)
+
+	local m = w:NewMenu('Speed')
+	local t = m:NewToggle('Toggle Speed')
+	local s = m:NewSlider('Slider',1,50,5)
+
+	t:SetTooltip("Enable the Speed")
+	s:SetTooltip("Walkspeed Amount")
+
+	m:NewLabel()
+	m:NewLabel('by Barbaric Scripts')
+
+	s.OnValueChanged:Connect(function(v) 
+		speed_amnt = v
+	end)
+
+	do
+		local a,b
+		t.OnToggle:Connect(function(t)
+			if (t) then
+				a = dnec(l_humrp.Changed)
+				b = dnec(l_humrp:GetPropertyChangedSignal("CFrame"))
+
+				s_rs:BindToRenderStep("speed",2000,function(dt)
+					l_humrp.CFrame += l_hum.MoveDirection*dt*5*speed_amnt
+				end)
+			else
+				s_rs:UnbindFromRenderStep("speed")
+
+				for i,v in ipairs(a) do 
+					v:Enable()
+				end
+				for i,v in ipairs(b) do 
+					v:Enable()
+				end
+			end
+		end)
+	end
+
+	ui.Exiting:Connect(function() 
+		for i,v in ipairs(ui:GetAllToggles()) do 
+			if (v:IsEnabled()) then
+				v:Disable()
+			end
+		end
+		resp_con:Disconnect()
+	end)
+
+	ui:Ready()
+end)
+
+UICorner_5.CornerRadius = UDim.new(0, 12)
+UICorner_5.Parent = speed
+
+UIGradient_2.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(18, 219, 171)), ColorSequenceKeypoint.new(0.49, Color3.fromRGB(69, 218, 111)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(158, 216, 89))}
+UIGradient_2.Parent = speed
+
+Shadow.Name = "Shadow"
+Shadow.Parent = Frame
+Shadow.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Shadow.BackgroundTransparency = 1.000
+Shadow.BorderSizePixel = 0
+Shadow.LayoutOrder = 6
+Shadow.Position = UDim2.new(-0.118609264, 0, -0.127524719, 0)
+Shadow.Size = UDim2.new(1.25000012, 0, 1.25000012, 0)
+Shadow.ZIndex = 2
+Shadow.Image = "rbxassetid://297694300"
+Shadow.ImageTransparency = 0.730
+
+FF2Frame.Name = "FF2Frame"
+FF2Frame.Parent = Frame
+FF2Frame.BackgroundColor3 = Color3.fromRGB(13, 35, 41)
+FF2Frame.BorderColor3 = Color3.fromRGB(13, 35, 41)
+FF2Frame.LayoutOrder = 3
+FF2Frame.Position = UDim2.new(0.130737141, 0, 0.43069309, 0)
+FF2Frame.Size = UDim2.new(0, 625, 0, 69)
+FF2Frame.Visible = false
+FF2Frame.ZIndex = 4
+
+Customhub.Name = "Customhub"
+Customhub.Parent = FF2Frame
+Customhub.BackgroundColor3 = Color3.fromRGB(172, 172, 172)
+Customhub.Position = UDim2.new(0.284799993, 0, 0.144927531, 0)
+Customhub.Size = UDim2.new(0, 269, 0, 50)
+Customhub.ZIndex = 6
+Customhub.Font = Enum.Font.Unknown
+Customhub.Text = "BARBARIC'S HUB"
+Customhub.TextColor3 = Color3.fromRGB(255, 255, 255)
+Customhub.TextSize = 14.000
+Customhub.MouseButton1Click:Connect(function()
+	getgenv().Variables = {}
+
+	Variables.Players = game:GetService("Players")
+	Variables.ReplicatedStorage = game:GetService("ReplicatedStorage")
+	Variables.UserInputService = game:GetService("UserInputService")
+	Variables.Client = Variables.Players.LocalPlayer
+	Variables.Character = Variables.Client.Character or Variables.Client.CharacterAdded:Wait()
+
+	Variables.Client.CharacterAdded:Connect(function(Character)
+		Variables.Character = Character 
+	end)
+
+	Variables.Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/yoo123fd/f/master/ui.lua"))()
+	Variables.Window = Variables.Library:AddWindow({
+		title = {
+			"Barbaric's Hub",
+			"We recommend an alt."
+		},
+		default = true,
+		theme = {
+			Accent = Color3.fromRGB(120, 0, 255),
+			TopbarColor = Color3.fromRGB(10, 10, 10),
+			SidebarColor = Color3.fromRGB(10, 0, 30),
+			BackgroundColor = Color3.fromRGB(10, 10, 10),
+			SectionColor = Color3.fromRGB(0, 0, 10),
+			TextColor = Color3.fromRGB(120, 15, 300),
+			Objects = {},
+		}
+	})
+	Variables.Physics = Variables.Window:AddTab("enjoy the script homies")
+	Variables.CatchingTab = Variables.Window:AddTab("Catching")
+	Variables.Kicking = Variables.Window:AddTab("Kicking")
+	-- // Bootup
+
+	Variables.Mags = loadstring(game:HttpGet("https://raw.githubusercontent.com/yoo123fd/f/master/Modules/Catching/Mags.lua"))()
+	Variables.Grapher = loadstring(game:HttpGet("https://raw.githubusercontent.com/yoo123fd/f/master/Modules/Catching/Grapher.lua"))()
+	Variables.Aimbot = loadstring(game:HttpGet("https://raw.githubusercontent.com/yoo123fd/f/master/Modules/Kicking/Aimbot.lua"))()
+	Variables.Tracer = loadstring(game:HttpGet("https://raw.githubusercontent.com/yoo123fd/f/master/Modules/Catching/Tracer.lua"))()
+end)
+
+UICorner_6.CornerRadius = UDim.new(0, 12)
+UICorner_6.Parent = Customhub
+
+UIGradient_3.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(18, 219, 171)), ColorSequenceKeypoint.new(0.49, Color3.fromRGB(69, 218, 111)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(158, 216, 89))}
+UIGradient_3.Parent = Customhub
+
+PhenomFrame.Name = "PhenomFrame"
+PhenomFrame.Parent = Frame
+PhenomFrame.BackgroundColor3 = Color3.fromRGB(13, 35, 41)
+PhenomFrame.BorderColor3 = Color3.fromRGB(13, 35, 41)
+PhenomFrame.LayoutOrder = 3
+PhenomFrame.Position = UDim2.new(0.130737141, 0, 0.633663416, 0)
+PhenomFrame.Size = UDim2.new(0, 625, 0, 69)
+PhenomFrame.Visible = false
+PhenomFrame.ZIndex = 4
+
+LOOM.Name = "LOOM"
+LOOM.Parent = PhenomFrame
+LOOM.BackgroundColor3 = Color3.fromRGB(172, 172, 172)
+LOOM.Position = UDim2.new(0.0368000008, 0, 0.115942031, 0)
+LOOM.Size = UDim2.new(0, 269, 0, 50)
+LOOM.ZIndex = 6
+LOOM.Font = Enum.Font.Unknown
+LOOM.Text = "LOOMPIC (NO GROUP)"
+LOOM.TextColor3 = Color3.fromRGB(255, 255, 255)
+LOOM.TextSize = 14.000
+LOOM.MouseButton1Click:Connect(function()
+	hookfunction(game:GetService("Players").LocalPlayer.IsInGroup, function()
+		return true
+	end)
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/Loompic/Phenom-Aimbot/main/Bot"))()
+end)
+
+UICorner_7.CornerRadius = UDim.new(0, 12)
+UICorner_7.Parent = LOOM
+
+UIGradient_4.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(18, 219, 171)), ColorSequenceKeypoint.new(0.49, Color3.fromRGB(69, 218, 111)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(158, 216, 89))}
+UIGradient_4.Parent = LOOM
+
+Phenomhub.Name = "Phenomhub"
+Phenomhub.Parent = PhenomFrame
+Phenomhub.BackgroundColor3 = Color3.fromRGB(172, 172, 172)
+Phenomhub.Position = UDim2.new(0.532800019, 0, 0.130434781, 0)
+Phenomhub.Size = UDim2.new(0, 269, 0, 50)
+Phenomhub.ZIndex = 6
+Phenomhub.Font = Enum.Font.Unknown
+Phenomhub.Text = "BARBARIC'S HUB"
+Phenomhub.TextColor3 = Color3.fromRGB(255, 255, 255)
+Phenomhub.TextSize = 14.000
+Phenomhub.MouseButton1Click:Connect(function()
+	local library = loadstring(game:HttpGet(('https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/wall%20v3')))() ---
+
+	local w = library:CreateWindow("BARBARIC'S HUB")
+
+	local b = w:CreateFolder("Main")
+
+	b:Button("Aimbot",function()
+		hookfunction(game:GetService("Players").LocalPlayer.IsInGroup, function()
+			return true
+		end)
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/Loompic/Phenom-Aimbot/main/Bot"))()
+	end)
+
+	-- Ball Mag
+
+	b:Toggle("Ball Mag",function(bool)
+		getgenv().ballMag = bool
+		local RS = game:GetService("RunService")
+		RS.RenderStepped:Connect(function()
+			if ballMag == true then
+				game.Workspace.Map.Basketball.Handle.CFrame = Game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+			end
+		end)
+	end)
+
+	-- Long arm
+
+	b:Toggle("Long Arm",function(bool)
+		getgenv().longArm = bool
+		if longArm == true then
+			game:GetService("Players").LocalPlayer.Character['Left Arm'].Size = Vector3.new(15, 1, 1)
+			game:GetService("Players").LocalPlayer.Character['Right Arm'].Size = Vector3.new(15, 1, 1)
+		else
+			game:GetService("Players").LocalPlayer.Character['Left Arm'].Size = Vector3.new(1, 2, 1)
+			game:GetService("Players").LocalPlayer.Character['Right Arm'].Size = Vector3.new(1, 2, 1)
+		end
+	end)
+end)
+
+UICorner_8.CornerRadius = UDim.new(0, 12)
+UICorner_8.Parent = Phenomhub
+
+UIGradient_5.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(18, 219, 171)), ColorSequenceKeypoint.new(0.49, Color3.fromRGB(69, 218, 111)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(158, 216, 89))}
+UIGradient_5.Parent = Phenomhub
+
+local UIS = game:GetService("UserInputService")
+
+UIS.InputBegan:Connect(function(key)
+	if key.KeyCode == Enum.KeyCode.LeftControl and Frame.Visible == true then
+		Frame.Visible = false
+	else
+		Frame.Visible = true
+	end
 end)
