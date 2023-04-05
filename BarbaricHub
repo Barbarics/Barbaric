@@ -401,29 +401,47 @@ DiscordLib:Notification("Notification", "Launched FF2 Hub", "Alright.")
 end)
 
 btns:Button("Phenom Hub", function()
-    local library = loadstring(game:HttpGet(('https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/wall%20v3')))() ---
-
-    local w = library:CreateWindow('barbaric hub')
-    
-    local b = w:CreateFolder("Main")
-    
-    b:Button("Aimbot",function()
         hookfunction(game:GetService("Players").LocalPlayer.IsInGroup, function()
             return true
         end)
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Loompic/Phenom-Aimbot/main/Bot"))()
+
+local library = loadstring(game:HttpGet(('https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/wall%20v3')))() ---
+
+local w = library:CreateWindow('barbarics hub')
+
+local b = w:CreateFolder("Main")
+
+b:Button("Aimbot",function()
+    hookfunction(game:GetService("Players").LocalPlayer.IsInGroup, function()
+        return true
     end)
-    
-    -- Ball Mag
-    
-    b:Toggle("Ball Mag",function(bool)
-        getgenv().ballMag = bool
-        local RS = game:GetService("RunService")
-        RS.RenderStepped:Connect(function()
-            if ballMag == true then
-              game.Workspace.Map.Basketball.Handle.CFrame = Game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-            end
-        end)
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Loompic/Phenom-Aimbot/main/Bot"))()
+end)
+
+-- Ball Mag
+
+b:Toggle("Ball Mag",function(bool)
+    getgenv().ballMag = bool
+    local RS = game:GetService("RunService")
+    RS.RenderStepped:Connect(function()
+        if ballMag == true then
+          game.Workspace.Map.Basketball.Handle.CFrame = Game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+        end
     end)
+end)
+
+-- Long arm
+
+b:Toggle("Long Arm",function(bool)
+  getgenv().longArm = bool
+    if longArm == true then
+      game:GetService("Players").LocalPlayer.Character['Left Arm'].Size = Vector3.new(15, 1, 1)
+      game:GetService("Players").LocalPlayer.Character['Right Arm'].Size = Vector3.new(15, 1, 1)
+    else
+      game:GetService("Players").LocalPlayer.Character['Left Arm'].Size = Vector3.new(1, 2, 1)
+      game:GetService("Players").LocalPlayer.Character['Right Arm'].Size = Vector3.new(1, 2, 1)
+    end
+end)
 DiscordLib:Notification("Notification", "Launched Phenom Hub", "Alright.")
 end)
