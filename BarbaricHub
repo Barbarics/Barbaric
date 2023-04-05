@@ -400,7 +400,7 @@ btns:Button("FF2 Hub", function()
 DiscordLib:Notification("Notification", "Launched FF2 Hub", "Alright.")
 end)
 
-btns:Button("Aki Old Source", function()
+btns:Button("Phenom Hub", function()
     local library = loadstring(game:HttpGet(('https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/wall%20v3')))() ---
 
     local w = library:CreateWindow('barbaric hub')
