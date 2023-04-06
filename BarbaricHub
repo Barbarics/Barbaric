@@ -822,12 +822,24 @@ UICorner_8.Parent = Phenomhub
 UIGradient_5.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(18, 219, 171)), ColorSequenceKeypoint.new(0.49, Color3.fromRGB(69, 218, 111)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(158, 216, 89))}
 UIGradient_5.Parent = Phenomhub
 
-local UIS = game:GetService("UserInputService")
+local frame = Frame
+local hotkey = Enum.KeyCode.LeftControl
 
-UIS.InputBegan:Connect(function(key)
-	if key.KeyCode == Enum.KeyCode.LeftControl and Frame.Visible == true then
-		Frame.Visible = false
-	else
-		Frame.Visible = true
+local UIS = game:GetService("UserInputService")
+local open = false
+
+
+
+UIS.InputBegan:Connect(function(key, gp)
+	if key.KeyCode == hotkey then
+		if UIS:GetFocusedTextBox() == nil then
+			if open == false then
+				open = true 
+				frame.Visible = open
+			elseif open == true then
+				open = false
+				frame.Visible = open
+			end
+		end
 	end
 end)
