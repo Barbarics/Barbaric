@@ -5247,8 +5247,6 @@ local function TMDJ_fake_script() -- colorPicker.colorPickerScript
 	---- VARS
 	-- services
 	
-	script.Parent.Parent.Parent.Parent.NameL.TrueName.Text = game.Name
-	
 	local UIS = game:GetService('UserInputService')
 	
 	-- top level ui
