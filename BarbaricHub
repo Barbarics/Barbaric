@@ -167,7 +167,7 @@ local function FTFGL_fake_script() -- LeftGroupBox.LocalScript
 	local whitelisted = {103169624}
 
 	gob.MouseButton1Click:Connect(function()
-		if textbox.Text == _G.key then
+		if textbox.Text == getgenv().key then
 			for i = 1, #whitelisted do
 				if whitelisted[i] == player.UserId then
 					frame:Destroy()
